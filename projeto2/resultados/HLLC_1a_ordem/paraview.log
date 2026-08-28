@@ -1,0 +1,5 @@
+[openvkl] INITIALIZATION ERROR: could not open module lib openvkl_module_cpu_device: dlopen(/Applications/ParaView-6.1.1.app/Contents/Libraries/libopenvkl_module_cpu_device.dylib, 0x0005): tried: '/Applications/ParaView-6.1.1.app/Contents/Libraries/libopenvkl_module_cpu_device.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Applications/ParaView-6.1.1.app/Contents/Libraries/libopenvkl_module_cpu_device.dylib' (no such file), '/Applications/ParaView-6.1.1.app/Contents/Libraries/libopenvkl_module_cpu_device.dylib' (no such file)
+
+[openvkl] WARNING: unrecognized device type 'cpu_4'.
+[openvkl] INITIALIZATION ERROR: Could not find device of type: cpu_4.  Make sure you have the correct VKL libraries linked.
+
