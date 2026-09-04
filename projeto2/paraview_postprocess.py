@@ -9,6 +9,7 @@ from pathlib import Path
 from paraview.simple import (  # type: ignore[import-not-found]
     AssignViewToLayout,
     ColorBy,
+    Contour,
     CreateLayout,
     CreateView,
     GetColorTransferFunction,
@@ -76,6 +77,29 @@ def add_annotation(view, text: str) -> None:
     display.Bold = 1
 
 
+def add_contours(reader, view, field: str, count: int = 12) -> None:
+    """Sobrepõe isolinhas uniformemente distribuídas do campo exibido."""
+    array = reader.GetPointDataInformation().GetArray(field)
+    if array is None:
+        raise RuntimeError(f"Campo escalar ausente no resultado: {field}")
+    lower, upper = array.GetRange()
+    if upper <= lower:
+        return
+
+    contours = Contour(Input=reader)
+    contours.ContourBy = ["POINTS", field]
+    contours.Isosurfaces = [
+        lower + (upper - lower) * index / (count + 1)
+        for index in range(1, count + 1)
+    ]
+    contours.UpdatePipeline()
+    display = Show(contours, view)
+    display.Representation = "Wireframe"
+    display.AmbientColor = [0.0, 0.0, 0.0]
+    display.DiffuseColor = [0.0, 0.0, 0.0]
+    display.LineWidth = 1.5
+
+
 def render_two_views(
     input_path: Path,
     output_path: Path,
@@ -96,8 +120,10 @@ def render_two_views(
 
     add_field_to_view(reader, full_view, field, scalar_title, rescale=True)
     add_field_to_view(reader, near_view, field, scalar_title, rescale=False)
-    add_annotation(full_view, f"{case_title}\nDomínio completo")
-    add_annotation(near_view, f"{case_title}\nDetalhe no canto da cunha")
+    add_contours(reader, full_view, field)
+    add_contours(reader, near_view, field)
+    add_annotation(full_view, f"{case_title}\nDomínio completo — isolinhas")
+    add_annotation(near_view, f"{case_title}\nDetalhe no canto da cunha — isolinhas")
     set_2d_camera(full_view, (0.0, 1.5), (0.0, 1.0))
     # Vértice da cunha em x = 0,5 m. Esta janela é ~5× menor que o domínio.
     set_2d_camera(near_view, (0.45, 0.72), (0.00, 0.20))
